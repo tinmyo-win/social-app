@@ -1,6 +1,8 @@
 import { Alert, Box, Button, OutlinedInput, Typography } from "@mui/material"
 import React, {useRef, useState} from "react";
 import { useNavigate } from "react-router-dom";
+import { register } from "./apiCalls";
+
 export default function Register() {
 
   const name = useRef();
@@ -13,27 +15,16 @@ export default function Register() {
   const [ err, setErr] = useState(false);
   const  [ errMsg, setErrMsg ] = useState("");
 
-  const registerHandler = (e) => {
+  const registerHandler = async (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:8484/users/register", {
-      method: "POST",
-      headers: {"Content-Type" : "application/json" },
-      body: JSON.stringify({
-        name: name.current.value,
-        handle: handle.current.value,
-        profile: profile.current.value,
-        password: password.current.value,
-      })
-    })
-    .then(res => {
-      if(!res.ok) return res.json();
-      else navigate("/login", {state: "Resgister Successful"});
-    })
-    .then(json => {
+    const user = await register(name.current.value, handle.current.value, profile.current.value, password.current.value);
+    if(user) {
+      navigate("/login", {state: "Resgister Successful"});
+    } else {
       setErr(true);
-      setErrMsg(json.msg)
-    })
+      setErrMsg('Register failed. please try again');
+    }
   }
 
   return(

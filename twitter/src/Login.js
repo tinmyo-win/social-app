@@ -1,6 +1,9 @@
 import { Alert, Box, Button, OutlinedInput, Typography } from "@mui/material"
-import { useRef, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
+import { AuthContext } from "./AuthProvider";
+import { login, verify } from "./apiCalls";
 
 export default function Login() {
 
@@ -13,30 +16,21 @@ export default function Login() {
   const [ err, setErr] = useState(false);
   const  [ errMsg, setErrMsg ] = useState("");
 
-  const loginHandler = (e) => {
+  const { setAuth, setAuthUser } = useContext(AuthContext)
+
+  const loginHandler = async (e) => {
     e.preventDefault();
 
-    fetch("http://localhost:8484/users/login", {
-      method: "POST",
-      headers: {"Content-Type" : "application/json" },
-      body: JSON.stringify({
-        handle: handle.current.value,
-        password: password.current.value,
-      })
-    })
-    .then(res => {
-      if(!res.ok) {
-        res.json().then(json => {
-          setErr(true);
-          setErrMsg(json.err);
-        }) 
-      }else {
-        res.text().then(token => {
-          localStorage.setItem("token", token);
-          navigate('/');
-        })
-      }
-    })
+    const token = await login(handle.current.value, password.current.value)
+    if(token) {
+      setAuth(true);
+      const user = await verify();
+      setAuthUser(user)
+      navigate('/');
+    } else {
+      setErr(true);
+      setErrMsg("handle or password incorrect");
+    }
   }
 
   return(
