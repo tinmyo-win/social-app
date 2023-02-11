@@ -5,38 +5,13 @@ import Header from "./Header";
 import { Button } from "@mui/material";
 import Register from "./Register";
 import Login from "./Login";
+import Edit from './Edit';
+import Profile from './Profile';
+import Home from './Home';
 
 import { Link, Route, Routes } from "react-router-dom";
 import { AuthContext } from "./AuthProvider";
 import { verify } from "./apiCalls";
-
-const Home = () => {
-  const { auth, authUser } = useContext(AuthContext);
-  return (
-    <div>
-      {auth ? (
-        <div>
-          <div>{authUser.name}</div>
-          <div>{authUser.profile}</div>
-          <div>{authUser.handle}</div>
-          <Link to={'/update'}>
-            <Button variant="contained">Update</Button>
-          </Link>
-        </div>
-      ) : (
-        "Guest User"
-      )}
-    </div>
-  );
-};
-
-const Update = () => {
-  return(
-    <div>
-      Update
-    </div>
-  )
-}
 
 export default function App() {
   const [drawerState, setDrawerState] = useState(false);
@@ -63,15 +38,22 @@ export default function App() {
     setDrawerState(open);
   };
 
+  const tweets = [
+		{ user: "Alice", body: "Some tweet body conent" },
+		{ user: "Bob", body: "Some other tweet post body" },
+		{ user: "Tom", body: "More tweet body content"},
+	];
+
   return (
     <div>
       <Header toggleDrawer={toggleDrawer} />
       <MainDrawer drawerState={drawerState} toggleDrawer={toggleDrawer} />
       <Routes>
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home tweets={tweets} />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/update" element={<Update />} />
+        <Route path="/edit" element={<Edit />} />
+        <Route path="/profile" element={<Profile />} />
       </Routes>
     </div>
   );

@@ -35,7 +35,7 @@ export default function MainDrawer({ drawerState, toggleDrawer }) {
           <ListItem disablePadding>
             <ListItemButton
               onClick={() => {
-                navigate("/");
+                navigate("/profile");
               }}
             >
               <ListItemIcon>

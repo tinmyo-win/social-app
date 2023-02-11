@@ -55,3 +55,32 @@ export async function register(name, handle, profile, password) {
     return user;
 
 }
+
+export async function updateUser (id, name, profile, password) {
+  const token = getToken();
+
+  const res = await fetch(`${api}/users/${id}`, {
+    method: "PUT",
+    headers: {
+      "Authorization" : `Bearer ${token}`,
+      "Content-Type" : "application/json" },
+    body: JSON.stringify({
+      name,
+      profile,
+      password,
+    })
+  });
+
+  if(!res.ok) return false;
+
+  const user = await res.json();
+  return user;
+}
+
+export async function getTweets () {
+  const res = await fetch(`${api}/tweets`);
+
+  if(!res.ok) return false;
+  const tweets = await res.json();
+  return tweets;
+}

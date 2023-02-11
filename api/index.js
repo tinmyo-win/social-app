@@ -54,7 +54,7 @@ app.post('/users/login', async (req, res) => {
   res.status(401).json({err: "handle or password incorrect"})
 })
 
-app.get('/users/verify', (req, res) => {
+app.get('/users/verify',auth , (req, res) => {
   res.json(res.locals.user);
 })
 
@@ -84,6 +84,57 @@ app.post('/users/register', async (req, res) => {
 app.get('/users', auth, async(req, res) => {
   const users = await db.collection("users").find().toArray();
   res.json(users);
+})
+
+app.put('/users/:id', auth, async(req, res) => {
+  const id = req.params;
+  const { name, profile, password } = req.body;
+
+  if(!name) {
+    return res.status(400).json({ msg: "name required" });
+
+  }
+
+  const data = {};
+  if(password) {
+    data.password = await bcrypt.hash( password, 10);
+  }
+
+  data.name = name;
+  data.profile = profile;
+
+  const result = await db.collection("users").updateOne(
+    {_id: ObjectId(id) },
+    {$set: data }
+  );
+
+  if(result.acknowledged) {
+    const user = await db.collection("users").findOne({ _id: ObjectId(id) })
+    return res.json(user);
+  }
+
+  return res.sendStatus(500);
+})
+
+app.get('/tweets', async (req, res) => {
+  const tweets = await db.collection('tweets').aggregate([
+    {
+      $lookup: {
+        foreignField: "_id",
+        localField: "owner",
+        from: "users",
+        as: "owner_user"
+      }
+    },
+    {
+      $sort: { "created": -1}
+    },
+    {
+      $limit: 20,
+    }
+  ]).toArray();
+
+  res.json(tweets);
 })
 
 const port = 8484;
