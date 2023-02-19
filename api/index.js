@@ -119,6 +119,12 @@ app.put('/users/:id', auth, async(req, res) => {
 app.get('/tweets', async (req, res) => {
   const tweets = await db.collection('tweets').aggregate([
     {
+      $sort: { "created": 1}
+    },
+    {
+      $limit: 20,
+    },
+    {
       $lookup: {
         foreignField: "_id",
         localField: "owner",
@@ -127,15 +133,127 @@ app.get('/tweets', async (req, res) => {
       }
     },
     {
-      $sort: { "created": -1}
-    },
-    {
-      $limit: 20,
+      $lookup: {
+        from: "tweets",
+        foreignField: "origin",
+        localField: "_id",
+        as: "comments",
+        pipeline: [
+          {
+            $lookup: {
+              from: "users",
+              localField: "owner",
+              foreignField: "_id",
+              as: "owner_user",
+            }
+          },
+          {
+            $lookup: {
+              from: "tweets",
+              localField: "_id",
+              foreignField: "origin",
+              as: "comments",
+            }
+          }
+
+        ]
+      }
     }
   ]).toArray();
 
   res.json(tweets);
 })
+
+app.get("/tweets/:id", async (req, res) => {
+	const { id } = req.params;
+
+	try {
+		const tweet = await db
+			.collection("tweets")
+			.aggregate([
+				{
+					$match: { _id: ObjectId(id) },
+				},
+				{
+					$lookup: {
+						from: "users",
+						localField: "owner",
+						foreignField: "_id",
+						as: "owner_user",
+					},
+				},
+				{
+					$lookup: {
+						from: "tweets",
+						localField: "_id",
+						foreignField: "origin",
+						as: "comments",
+						pipeline: [
+							{
+								$lookup: {
+									from: "users",
+									localField: "owner",
+									foreignField: "_id",
+									as: "owner_user",
+								},
+							},
+							{
+								$lookup: {
+									from: "tweets",
+									localField: "_id",
+									foreignField: "origin",
+									as: "comments",
+								},
+							},
+						],
+					},
+				},
+			])
+			.toArray();
+
+		res.json(tweet[0]);
+	} catch (e) {
+		res.sendStatus(500);
+	}
+});
+
+app.post('/tweet', auth, async(req, res) => {
+  const user = res.locals.user;
+  const { body } = req.body;
+  
+  if(!body) return res.status(400).json({ "msg": "Body required" });
+
+  const result = await db.collection('tweets').insertOne({
+    type: "post",
+    body,
+    owner: ObjectId(user._id),
+    created: new Date(),
+    likes: [],
+  });
+
+  if(result.insertedId) {
+    const tweet = await db.collection('tweets').aggregate([
+      {
+        $match: { _id: ObjectId(result.insertedId)},
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "owner",
+          foreignField: "_id",
+          as: "owner_user",
+        },
+      },
+    ]).toArray();
+    let data = tweet[0];
+    data.comments = [];
+
+    res.json(data);
+  }
+
+})
+
+
 
 const port = 8484;
 app.listen(port, () => {
