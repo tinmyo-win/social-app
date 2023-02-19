@@ -27,11 +27,11 @@ import { useContext, useEffect, useMemo, useState, useRef } from "react";
 
 import { blue, pink } from "@mui/material/colors";
 
-import { getTweet } from "./apiCalls";
+import { getTweet, postComment } from "./apiCalls";
 import { useNavigate, useParams } from "react-router-dom";
 import { AuthContext } from "./AuthProvider";
 
-export default function Tweet({ tweets }) {
+export default function Tweet({ tweets, updateTweets }) {
   const { id } = useParams();
 
   const { auth } = useContext(AuthContext);
@@ -40,7 +40,7 @@ export default function Tweet({ tweets }) {
   const [tweet, setTweet] = useState({});
   const [loading, setLoading] = useState(true);
 
-  const input = useRef();
+  const body = useRef();
 
   useEffect(() => {
     (async () => {
@@ -210,7 +210,7 @@ export default function Tweet({ tweets }) {
           >
             <FormControl fullWidth>
               <Input
-                inputRef={input}
+                inputRef={body}
                 sx={{ fontSize: "16px", py: 2 }}
                 placeholder="Your reply"
                 multiline
@@ -218,7 +218,25 @@ export default function Tweet({ tweets }) {
                 variant="standard"
                 endAdornment={
                   <InputAdornment position="end">
-                    <IconButton>
+                    <IconButton onClick={ e => {
+                      e.preventDefault();
+                      (async () => {
+                        if (!body.current.value) return false;
+
+                        const comment = await postComment(
+                          body.current.value,
+                          tweet._id,
+                        );
+
+                        if(!comment) return false;
+
+                        const result = await getTweet(id);
+                        setTweet(result);
+                        updateTweets(tweet);
+
+                        body.current.value = '';
+                      })()
+                    }}>
                       <SendIcon color="info" />
                     </IconButton>
                   </InputAdornment>

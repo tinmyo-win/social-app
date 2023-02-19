@@ -10,7 +10,8 @@ import {
   Login as LoginIcon,
   PersonAdd as PersonAddIcon,
 	Person as PersonIcon,
-	Logout as LogoutIcon
+	Logout as LogoutIcon,
+  Home as HomeIcon,
 } from "@mui/icons-material";
 
 import { useNavigate } from "react-router-dom";
@@ -27,6 +28,20 @@ export default function MainDrawer({ drawerState, toggleDrawer }) {
       onClick={toggleDrawer(false)}
       onKeyDown={toggleDrawer(false)}
     >
+      <List>
+				<ListItem disablePadding>
+					<ListItemButton
+						onClick={() => {
+							navigate("/");
+						}}>
+						<ListItemIcon>
+							<HomeIcon />
+						</ListItemIcon>
+						<ListItemText primary="Home" />
+					</ListItemButton>
+				</ListItem>
+			</List>
+
       {auth ? (
         <List>
           <Typography >

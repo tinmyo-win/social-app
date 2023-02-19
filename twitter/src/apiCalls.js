@@ -112,4 +112,23 @@ export async function postTweet(body) {
   return tweet;
 }
 
+export async function postComment(body, origin) {
+  const token = getToken();
+
+  const res = await fetch(`${api}/comment`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${token}`
+    },
+    body: JSON.stringify({ body, origin })
+  });
+
+  if (!res.ok) return false;
+
+  const tweet = await res.json();
+
+  return tweet;
+}
+
 
