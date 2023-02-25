@@ -131,4 +131,22 @@ export async function postComment(body, origin) {
   return tweet;
 }
 
+export async function getUser(handle) {
+  const res = await fetch(`${api}/users/${handle}`);
+  if(!res.ok) return false;
+
+  const user = await res.json();
+
+  return user;
+}
+
+export async function getUserTweets(id) {
+  const res = await fetch(`${api}/tweets/user/${id}`);
+  if(!res.ok) return false;
+
+  const tweets = await res.json();
+
+  return tweets;
+}
+
 

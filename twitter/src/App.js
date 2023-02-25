@@ -11,6 +11,8 @@ import Profile from "./Profile";
 import Home from "./Home";
 import Tweet from "./Tweet";
 import Add from "./Add";
+import Followers from "./Followers";
+import Following from "./Following";
 
 import {
   Link,
@@ -110,6 +112,9 @@ export default function App() {
         />
         <Route path="/add" element={<Add addTweet={addTweet} />} />
         <Route path="/likes" element={<Likes />} />
+        <Route path="/@/:handle" element={<Profile />} />
+        <Route path="/followers" element={<Followers />} />
+        <Route path="/following" element={<Following />} />
       </Routes>
 
       <Snackbar

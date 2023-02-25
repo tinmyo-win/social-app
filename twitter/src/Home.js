@@ -43,21 +43,26 @@ export default function Home({ tweets, toggleLike }) {
             <CardContent sx={{ display: "flex" }}>
               <Avatar alt="Profile" sx={{ width: 64, height: 64 }} />
               <Box sx={{ ml: 2, mt: 1 }}>
-                <Box sx={{ display: "flex" }}>
-                  <Typography>{tweet.owner_user[0].name}</Typography>
-                  <Typography
-                    component="span"
-                    sx={{
-                      color: "grey",
-                      mx: 1,
+                <Box sx={{ display: "flex"}}>
+                  <CardActionArea
+                    onClick={() => {
+                      navigate(`/@/${tweet.owner_user[0].handle}`);
                     }}
                   >
-                    @{tweet.owner_user[0].handle}
-                  </Typography>
-
-                  <Typography component="span" sx={{ ml: 1, color: blue[500] }}>
+                    <Typography component="span">{tweet.owner_user[0].name}</Typography>
+                    <Typography
+                      component="span"
+                      sx={{
+                        color: "grey",
+                        mx: 1,
+                      }}
+                    >
+                      @{tweet.owner_user[0].handle}
+                    </Typography>
+                    <Typography component="span" sx={{ ml: 1, color: blue[500] }}>
                     <small>{tweet.created}</small>
                   </Typography>
+                  </CardActionArea>
                 </Box>
                 <CardActionArea
                   onClick={() => {
@@ -86,13 +91,16 @@ export default function Home({ tweets, toggleLike }) {
                     <FavoriteBorderIcon sx={{ color: pink[500] }} />
                   )}
                 </IconButton>
-                <Button variant="clear" onClick={() => {
-                  navigate("/likes", {
-                    state: {
-                      users: tweet.likes_users,
-                    },
-                  });
-                }}>
+                <Button
+                  variant="clear"
+                  onClick={() => {
+                    navigate("/likes", {
+                      state: {
+                        users: tweet.likes_users,
+                      },
+                    });
+                  }}
+                >
                   {(tweet.likes && tweet.likes.length) || 0}
                 </Button>
               </ButtonGroup>
