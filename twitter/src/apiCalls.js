@@ -149,4 +149,21 @@ export async function getUserTweets(id) {
   return tweets;
 }
 
+export async function toggleFollow(id) {
+  const token = getToken();
+
+  const res = await fetch(`${api}/users/${id}/follow`, {
+    'method': 'PUT',
+    'headers': {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+
+  if(!res.ok) return false;
+
+  const result = await res.json();
+
+  return result;
+}
+
 

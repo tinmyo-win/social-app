@@ -22,6 +22,8 @@ import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "./AuthProvider";
 import { getUser, getUserTweets } from "./apiCalls";
 
+import FollowButton from "./FollowButton";
+
 export default function Profile() {
   const navigate = useNavigate();
 
@@ -34,7 +36,7 @@ export default function Profile() {
 
   useEffect(() => {
     (async () => {
-      const update = await getUser(handle);
+      const update = await getUser(handle ?? authUser.handle); //need to refactor right logic
       if (update) setUser(update);
 
       const list = await getUserTweets(update._id);
@@ -65,14 +67,18 @@ export default function Profile() {
           </Typography>
         </Box>
         <Box>
-          <Button
-            variant="contained"
-            onClick={() => {
-              navigate("/edit");
-            }}
-          >
-            Edit Profile
-          </Button>
+          {user._id === authUser._id ? (
+            <Button
+              variant="contained"
+              onClick={() => {
+                navigate("/edit");
+              }}
+            >
+              Edit Profile
+            </Button>
+          ) : (
+            <FollowButton user={user} />
+          )}
         </Box>
       </Box>
 
